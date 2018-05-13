@@ -1,29 +1,29 @@
 //
-//  GlossaryViewController.swift
+//  DomainDefinitionsViewController.swift
 //  MultiLanguageGlossary
 //
-//  Created by Artem Misesin on 4/14/18.
+//  Created by Artem Misesin on 5/6/18.
 //  Copyright © 2018 misesin. All rights reserved.
 //
 
 import UIKit
 import RealmSwift
 
-class GlossaryViewController: UIViewController {
+class DomainDefinitionsViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
     private let searchController = UISearchController(searchResultsController: nil)
     private var searchString = ""
     
+    var domainName = ""
+    
     let realm = try! Realm()
-    let categories = try! Realm().objects(Domain.self).sorted(byKeyPath: "name")
-    lazy var filteredCategories = try! Realm().objects(Domain.self).filter("name CONTAINS '\(self.searchString)'").sorted(byKeyPath: "name")
+    lazy var definitions = try! Realm().objects(Definition.self).filter("domainName = '\(self.domainName)'").sorted(byKeyPath: "word")
+    lazy var filteredResults = definitions.filter("word CONTAINS '\(self.searchString)'").sorted(byKeyPath: "word")
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.definesPresentationContext = true
-        self.navigationController?.navigationBar.prefersLargeTitles = true
         setupSearch()
     }
     
@@ -35,20 +35,20 @@ class GlossaryViewController: UIViewController {
         if let index = tableView.indexPathForSelectedRow {
             tableView.deselectRow(at: index, animated: false)
         }
-        tableView.reloadData()
+        self.title = domainName
     }
     
     private func setupSearch() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.hidesNavigationBarDuringPresentation = true
-        searchController.searchBar.placeholder = "Enter a category"
+        searchController.searchBar.placeholder = "Enter a word"
         self.navigationItem.searchController = searchController
     }
     
 }
 
-extension GlossaryViewController: UITableViewDelegate, UITableViewDataSource {
+extension DomainDefinitionsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -56,44 +56,29 @@ extension GlossaryViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if isSearching {
-            return filteredCategories.count
+            return filteredResults.count
         } else {
-            return categories.count
+            return definitions.count
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "glossaryWordCell", for: indexPath)
         if isSearching {
-            print(filteredCategories[indexPath.row].name)
-            cell.textLabel?.text = filteredCategories[indexPath.row].name
-            cell.detailTextLabel?.text = String(describing: filteredCategories[indexPath.row].definitions.count)
+            cell.textLabel?.text = filteredResults[indexPath.row].word
+            cell.detailTextLabel?.text = filteredResults[indexPath.row].definition
         } else {
-            cell.textLabel?.text = categories[indexPath.row].name
-            cell.detailTextLabel?.text = String(describing: categories[indexPath.row].definitions.count)
+            cell.textLabel?.text = definitions[indexPath.row].word
+            cell.detailTextLabel?.text = definitions[indexPath.row].definition
         }
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "DomainDefinitionsVC") as? DomainDefinitionsViewController {
-            if isSearching {
-                vc.domainName = filteredCategories[indexPath.row].name
-            } else {
-                vc.domainName = categories[indexPath.row].name
-            }
-            DispatchQueue.main.async {
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-        }
     }
     
 }
 
 // MARK: - UISearchResultsUpdating
 
-extension GlossaryViewController: UISearchResultsUpdating {
+extension DomainDefinitionsViewController: UISearchResultsUpdating {
     
     var searchBarIsEmpty: Bool {
         return searchController.searchBar.text?.isEmpty ?? true
@@ -105,7 +90,7 @@ extension GlossaryViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         searchString = searchController.searchBar.text ?? ""
-        filteredCategories = try! Realm().objects(Domain.self).filter("name CONTAINS '\(searchString)'").sorted(byKeyPath: "name")
+        filteredResults = definitions.filter("word CONTAINS '\(searchString)'").sorted(byKeyPath: "word")
         tableView.reloadData()
     }
     

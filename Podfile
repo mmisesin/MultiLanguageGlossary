@@ -8,5 +8,7 @@ target 'MultiLanguageGlossary' do
   # Pods for MultiLanguageGlossary
 
   pod 'SwiftSoup'
+  pod 'RealmSwift'
+  pod 'SVProgressHUD'
 
 end

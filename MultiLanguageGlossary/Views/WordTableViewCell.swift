@@ -13,14 +13,12 @@ class WordTableViewCell: UITableViewCell {
     var viewModel: ViewModel = ViewModel() {
         didSet {
             wordLabel.text = viewModel.word
-            definitionLabel.text = viewModel.definition
-            definitionImage.downloadFrom(link: viewModel.imageUrl)
+            languageLabel.text = viewModel.language
         }
     }
     
     @IBOutlet weak var wordLabel: UILabel!
-    @IBOutlet weak var definitionLabel: UILabel!
-    @IBOutlet weak var definitionImage: UIImageView!
+    @IBOutlet weak var languageLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -32,8 +30,7 @@ extension WordTableViewCell {
 
     struct ViewModel {
         let word: String
-        let definition: String
-        let imageUrl: String
+        let language: String
     }
     
 }
@@ -42,9 +39,11 @@ extension WordTableViewCell.ViewModel {
     
     init() {
         word = ""
-        definition = ""
-        imageUrl = ""
+        language = ""
     }
     
-    init(translation: )
+    init(translation: TranslationObject) {
+        word = translation.word
+        language = translation.sourceLanguage
+    }
 }

@@ -9,6 +9,12 @@
 import Foundation
 import UIKit
 
+struct APIConstants {
+    
+    // Lingvo API key "Zjg0M2ZkZmItZGVjNi00ZmI2LTk0ZDctNGFhMzg1NTJiYjYzOmUzNmYzOWRjZjdkMzRlNzlhZTkwYjExYWJkNjJlOGIx"
+    
+}
+
 struct Colors {
     
     private init() {}

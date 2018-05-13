@@ -19,9 +19,9 @@ class Translator {
         private var service: String {
             switch self {
             case .detect:
-                return "detect"
+                return "/detect"
             case .translate:
-                return "translate"
+                return ""
             }
         }
         
@@ -36,29 +36,26 @@ class Translator {
             guard let urlEncodedText = text.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {
                 preconditionFailure("Unknown error")
             }
-            return "https://translation.googleapis.com/language/translate/v2/\(self.service)?key=\(Translator.apiKey)&q=\(urlEncodedText)"
+            return "https://translation.googleapis.com/language/translate/v2\(self.service)?key=\(Translator.apiKey)&q=\(urlEncodedText)"
         }
         
         var url: URL? {
             switch self {
             case .detect:
-                guard let url = URL(string: baseURL) else {
-                    return nil
-                }
-                return url
+                return URL(string: baseURL)
             case .translate(_, let source, let target):
                 var newLink: String
                 if let source = source {
-                    newLink = baseURL + "&source=\(source)&target=\(target)"
+                    newLink = baseURL + "&source=\(source)&target=\(target)&format=text"
                 } else {
-                    newLink = baseURL + "&target=\(target)"
+                    newLink = baseURL + "&target=\(target)&format=text"
                 }
                 return URL(string: newLink)
             }
         }
     }
     
-    private func detectLanguage(fromText text: String, callback: @escaping (LanguageDetection) -> Void) {
+    private func detectLanguage(fromText text: String, callback: @escaping (LanguageDetection?, Error?) -> Void) {
         let builder = RequestBuilder.detect(word: text)
         if let url = builder.url {
             let request = URLSession.shared.dataTask(with: url) { (data, response, error) in
@@ -73,7 +70,7 @@ class Translator {
                 let decoder = JSONDecoder()
                 do {
                     let result = try decoder.decode(LanguageDetection.self, from: data)
-                    callback(result)
+                    callback(result, nil)
                 } catch {
                     preconditionFailure("JSON mapper is invalid")
                 }
@@ -82,7 +79,7 @@ class Translator {
         }
     }
     
-    func translate(_ text: String, source language: String?, callback: @escaping (Translation) -> Void) {
+    func translate(_ text: String, source language: String?, callback: @escaping (TranslationResult?, Error?) -> Void) {
         let builder = RequestBuilder.translate(word: text, source: language, target: "en")
         if let url = builder.url {
             let request = URLSession.shared.dataTask(with: url) { (data, response, error) in
@@ -92,12 +89,14 @@ class Translator {
                     httpURLResponse.statusCode == 200,
                     let data = data
                     else {
+                        print(response)
+                        callback(nil, error)
                         return
                 }
                 let decoder = JSONDecoder()
                 do {
-                    let result = try decoder.decode(Translation.self, from: data)
-                    callback(result)
+                    let result = try decoder.decode(TranslationResult.self, from: data)
+                    callback(result, nil)
                 } catch {
                     preconditionFailure("JSON mapper is invalid")
                 }
@@ -105,7 +104,5 @@ class Translator {
             request.resume()
         }
     }
-    
-    
     
 }

@@ -1,16 +1,30 @@
 PODS:
+  - Realm (3.5.0):
+    - Realm/Headers (= 3.5.0)
+  - Realm/Headers (3.5.0)
+  - RealmSwift (3.5.0):
+    - Realm (= 3.5.0)
+  - SVProgressHUD (2.2.5)
   - SwiftSoup (1.7.1)
 
 DEPENDENCIES:
+  - RealmSwift
+  - SVProgressHUD
   - SwiftSoup
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - Realm
+    - RealmSwift
+    - SVProgressHUD
     - SwiftSoup
 
 SPEC CHECKSUMS:
+  Realm: 0378021c424e4e2bd6a0e63b27881e929d9b9ad1
+  RealmSwift: 3322562622fda2ad596985ead4d8d8be30cf838c
+  SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
   SwiftSoup: 277f7ef548826e0ca7603a06b30d4a5df3ee0587
 
-PODFILE CHECKSUM: de652a24972deac2c6c9669bd49da45c13205c8a
+PODFILE CHECKSUM: 350bbed95678589a809e980b6bdc8e4974b12329
 
 COCOAPODS: 1.5.0
